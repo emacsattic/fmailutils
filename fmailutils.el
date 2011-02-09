@@ -1,13 +1,12 @@
 ;;; fmailutils.el -- random mail frobnication utilities
 
-;; Copyright (C) 1992, 93, 95, 97, 1999, 2006 Noah S. Friedman
+;; Copyright (C) 1992, 93, 95, 97, 99, 06, 2010 Noah S. Friedman
 
 ;; Author: Noah Friedman <friedman@splode.com>
 ;; Maintainer: friedman@splode.com
 ;; Keywords: mail, extensions
-;; Status: Works in Emacs 19, 20, and XEmacs
 
-;; $Id: fmailutils.el,v 1.15 2006/08/07 06:55:13 friedman Exp $
+;; $Id: fmailutils.el,v 1.16 2010/11/02 19:51:35 friedman Exp $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,9 +19,7 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, you can either send email to this
-;; program's maintainer or write to: The Free Software Foundation,
-;; Inc.; 51 Franklin Street, Fifth Floor; Boston, MA 02110-1301, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -462,6 +459,28 @@ otherwise replace all of them.  The original string is not modified."
          ;; This can be utterly wrong, particular for posix timezone specs,
          ;; but about as correct as is worthwhile for supporting emacs 18.
          (substring (getenv "TZ") 0 3))))
+
+
+(defun fmailutils-make-address-regexp (user domain)
+  "Return a regular expression matching all instances of USER@DOMAIN.
+USER and DOMAIN may each be a single string or a list of strings.
+
+The resulting regular expression will match any user part at any domain
+part, including any `+tag' suffix on the username part, and any subdomains.
+
+Example:
+
+\t\(fmailutils-make-address-regexp '(\"noah\" \"noahf\" \"friedman\") \"splode.com\"\)
+\t=> \"\\\\(?:friedman\\\\|noahf?\\\\)\\\\(?:\\\\|\\\\+.*?\\\\)@\\\\(?:\\\\|.*\\\\.\\\\)splode\\\\.com\""
+  (concat (if (consp user)
+              (regexp-opt user)
+            (regexp-quote user))
+          "\\(?:\\|\\+.*?\\)"           ; match any +tag
+          "@"
+          "\\(?:\\|.*\\.\\)"            ; match any subdomain
+          (if (consp domain)
+              (regexp-opt domain)
+            (regexp-quote domain))))
 
 
 ;; Useful mail mode hacks
